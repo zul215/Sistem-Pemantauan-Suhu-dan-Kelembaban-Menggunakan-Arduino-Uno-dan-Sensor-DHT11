@@ -1,0 +1,47 @@
+#include <DHT.h>              // Library untuk sensor DHT
+#include <Wire.h>             // Library untuk komunikasi I2C
+#include <LiquidCrystal_I2C.h> // Library untuk LCD I2C
+
+#define DHTPIN 2              // Pin data DHT11 terhubung ke pin D2 Arduino
+#define DHTTYPE DHT11         // Tipe sensor yang digunakan
+
+DHT dht(DHTPIN, DHTTYPE);      // Inisialisasi sensor DHT11
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Inisialisasi LCD I2C (alamat 0x27)
+
+void setup() {
+  lcd.begin();                // Inisialisasi LCD
+  lcd.backlight();            // Menghidupkan backlight LCD
+  dht.begin();                // Memulai sensor DHT11
+  lcd.print("Sistem Pemantau"); 
+  lcd.setCursor(0, 1);
+  lcd.print("Suhu & Kelembaban");
+  delay(2000);                // Tunda 2 detik untuk intro
+  lcd.clear();
+}
+
+void loop() {
+  float suhu = dht.readTemperature();    // Membaca suhu (Celsius)
+  float kelembaban = dht.readHumidity(); // Membaca kelembaban (%)
+
+  // Cek apakah data valid
+  if (isnan(suhu) || isnan(kelembaban)) {
+    lcd.setCursor(0, 0);
+    lcd.print("Error membaca"); 
+    lcd.setCursor(0, 1);
+    lcd.print("data sensor!");
+    return;
+  }
+
+  // Menampilkan data di LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Suhu: ");
+  lcd.print(suhu);
+  lcd.print(" C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Kelembaban: ");
+  lcd.print(kelembaban);
+  lcd.print(" %");
+
+  delay(2000); // Tunda 2 detik sebelum pembaruan berikutnya
+}
